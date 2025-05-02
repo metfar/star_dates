@@ -1,0 +1,2 @@
+[console_scripts]
+stardate = star_dates_module:main

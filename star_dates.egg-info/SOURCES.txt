@@ -1,0 +1,11 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.py
+star_dates_module.py
+star_dates.egg-info/PKG-INFO
+star_dates.egg-info/SOURCES.txt
+star_dates.egg-info/dependency_links.txt
+star_dates.egg-info/entry_points.txt
+star_dates.egg-info/top_level.txt
