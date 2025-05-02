@@ -1,53 +1,102 @@
 import sys;
-from datetime import date, timedelta;
+import argparse;
+from datetime import datetime, timedelta;
+from decimal import Decimal, getcontext, ROUND_DOWN;
 
-# Constante: duración de un sol marciano en días terrestres
-SOL_MARC = 1.02749125;
+# Constants
+BASE_YEAR = 2000;
+DAYS_PER_YEAR = 365.25;
+DAYS_PER_MONTH = 30.44;
 
 class StarDates:
-    def __init__(self, fecha: date):
+    def __init__(self, fecha: datetime):
         self.fecha = fecha;
-        self.inicio_sol = date(2021, 4, 19);
-        self.base_stardate = 2323;
 
     def terran_date(self) -> str:
-        return self.fecha.strftime('%Y.%m.%d');
-
-    def terran_sol(self) -> int:
-        return (self.fecha - self.inicio_sol).days;
-
-    def martian_sol(self) -> int:
-        dias_terrestres = self.terran_sol();
-        return int(dias_terrestres / SOL_MARC);
+        return self.fecha.strftime('%Y.%m.%d %H:%M:%S');
 
     def stardate(self) -> float:
-        year = self.fecha.year;
-        day_of_year = (self.fecha - date(year, 1, 1)).days + 1;
-        is_leap = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0);
-        total_days = 366 if is_leap else 365;
-        return round(1000 * (year - self.base_stardate) + (day_of_year / total_days) * 1000, 1);
+        getcontext().prec = 9;
+        y, m, d = self.fecha.year, self.fecha.month, self.fecha.day;
+        h, mi, s = self.fecha.hour, self.fecha.minute, self.fecha.second;
 
-    def bitacora(self, titulo: str = 'Registro de Bitácora Estelar') -> str:
+        sd = Decimal(y - BASE_YEAR) * Decimal(DAYS_PER_YEAR);
+        sd += Decimal(m - 1) * Decimal(DAYS_PER_MONTH);
+        sd += Decimal(d);
+        sd += Decimal(h) / Decimal(24);
+        sd += Decimal(mi) / Decimal(1440);
+        sd += Decimal(s) / Decimal(86400);
+
+        return float(sd.quantize(Decimal("0.01"), rounding=ROUND_DOWN));
+
+    def log(self, titulo: str = 'Star Log') -> str:
         barra = '=' * (len(titulo) + 8);
         return (
             f"=== {titulo} ===\n"
-            f"📅 Fecha terrestre: {self.terran_date()}\n"
-            f"🪐 Terran Sol: {self.terran_sol()}\n"
-            f"🚀 Martian Sol: {self.martian_sol()}\n"
-            f"🌌 Stardate: {self.stardate()}\n"
+            f"📅 Terran Time: {self.terran_date()}\n"
+            f"🌌    Stardate: {self.stardate()}\n"
             f"{barra}\n"
         );
 
-# Información para instalación como paquete
-__version__ = '0.7.3';
-__author__ = 'William Martinez Bas';
-__email__ = 'metfar@gmail.com';
-__license__ = 'MIT';
-__description__ = 'Conversor y formateador de fechas terrestres, marcianas y stardates estilo Star Trek';
+    @staticmethod
+    def from_stardate(stardate: float) -> 'StarDates':
+        getcontext().prec = 9;
+        sd = Decimal(str(stardate));
+
+        years = int(sd // Decimal(DAYS_PER_YEAR));
+        rem_days = sd % Decimal(DAYS_PER_YEAR);
+        year = BASE_YEAR + years;
+
+        months = int(rem_days // Decimal(DAYS_PER_MONTH));
+        rem_days -= Decimal(months) * Decimal(DAYS_PER_MONTH);
+        month = months + 1;
+
+        day = int(rem_days);
+        rem = rem_days - Decimal(day);
+
+        hour = int(rem * Decimal(24));
+        rem -= Decimal(hour) / Decimal(24);
+
+        minute = int(rem * Decimal(1440));
+        rem -= Decimal(minute) / Decimal(1440);
+
+        second = int(rem * Decimal(86400));
+
+        fecha = datetime(year, month, day, hour, minute, second);
+        return StarDates(fecha);
 
 def main():
-        print(StarDates.stardate(float(sys.argv[1:])));
-        sys.exit(0);
+    parser = argparse.ArgumentParser(description='Star Trek style Stardates converter from 2000 with time.');
+    parser.add_argument('--version', action='version', version='StarDates 1.0.1');
+
+    group = parser.add_mutually_exclusive_group();
+    group.add_argument('--stardate', type=float, help='Stardate to convert into Terran Time');
+    group.add_argument('--date', type=str, help='Earth time format YYYY-MM-DD[THH:MM:SS] or "YYYY-MM-DD HH:MM:SS"');
+
+    args = parser.parse_args();
+
+    if args.stardate is not None:
+        sd = StarDates.from_stardate(args.stardate);
+        print(sd.bitacora(f"Convert from Stardate {args.stardate}"));
+    elif args.date is not None:
+        try:
+            try:
+                fecha = datetime.fromisoformat(args.date);
+            except ValueError:
+                try:
+                    fecha = datetime.strptime(args.date, "%Y-%m-%d %H:%M:%S");
+                except ValueError:
+                    fecha = datetime.strptime(args.date, "%Y-%m-%d");
+            sd = StarDates(fecha);
+            print(sd.bitacora(f"Convert from Terran Time {args.date}"));
+        except Exception as e:
+            print(f"Error interpreting time: {e}");
+            sys.exit(1);
+    else:
+        # 🚀 Sin argumentos: usar fecha y hora actual
+        now = datetime.now(); 
+        sd = StarDates(now);
+        print(sd.bitacora("Current Stardate (system-based)"));
 
 if __name__ == '__main__':
     main();

@@ -1,4 +1,4 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: star_dates
 Version: 1.0.1
 Summary: Conversor de fechas a Stardate con precisión horaria desde el año 2000
@@ -17,5 +17,6 @@ Dynamic: author
 Dynamic: author-email
 Dynamic: classifier
 Dynamic: license
+Dynamic: license-file
 Dynamic: requires-python
 Dynamic: summary

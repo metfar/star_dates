@@ -1,50 +1,86 @@
 # StarDates
 
-Conversor de fechas y horas a Stardates (estilo Star Trek), usando una escala absoluta desde el año 2000.
+A date converter to/from *Stardates* (inspired by Star Trek), using an absolute linear time scale starting from the year 2000.
 
-## 🚀 Descripción
+## 🚀 Description
 
-Este módulo permite convertir fechas terrestres con hora (en formato `YYYY-MM-DD HH:MM:SS`) a una escala continua de "Stardate" basada en días desde el año 2000. También permite la conversión inversa.
+This module converts terrestrial datetime (including hours, minutes, and seconds) to a continuous *Stardate* scale, based on absolute elapsed time since January 1, 2000. It also allows conversion back from stardates to standard datetime.
 
-- Escala continua y absoluta
-- Soporte para horas, minutos y segundos
-- Línea de comandos amigable
-- Licencia MIT
+- Absolute linear time scale
+- Supports full datetime precision
+- Command-line interface and programmatic API
+- MIT license
 
-## 📦 Instalación
+## 📦 Installation
 
 ```bash
 pip install .
 ```
 
-## 🛠 Uso desde línea de comandos
+or for development:
 
 ```bash
-# Convertir Stardate a fecha
-python star_dates_module.py --stardate 2398.3
-
-# Convertir fecha a Stardate
-python star_dates_module.py --date "2006-07-24 03:50:24"
+python3 -m build
+pip install dist/*.whl
 ```
 
-También podés usarlo como comando:
+## 🛠 Usage
+
+### From the command line
 
 ```bash
-stardate --date "2006-07-24T03:50:24"
+# Convert Stardate to datetime
 stardate --stardate 2398.3
+
+# Convert datetime to Stardate
+stardate --date "2006-07-24 03:50:24"
+
+# Default: show current Stardate
+stardate
 ```
 
-## 🧮 Fórmula usada
+You can also run the module directly:
+
+```bash
+python star_dates_module.py --stardate 2398.3
+python star_dates_module.py --date "2006-07-24T03:50:24"
+```
+
+### 🧪 Example output
+
+```
+=== Stardate system time ===
+📅 Terran datetime: 2025.05.02 21:43:00
+🌌 Stardate: 9368.35
+=================================
+```
+
+## 🧮 Formula used
 
 ```text
-Stardate = (Año - 2000) × 365.25
-         + (Mes - 1) × 30.44
-         + Día
-         + Hora / 24
-         + Minuto / 1440
-         + Segundo / 86400
+Stardate = (Year - 2000) × 365.25
+         + (Month - 1) × 30.44
+         + Day
+         + Hour / 24
+         + Minute / 1440
+         + Second / 86400
 ```
 
-## 📜 Licencia
+## 🧑‍💻 Development & Tests
+
+Run all tests:
+
+```bash
+./test.sh
+```
+
+Or individually:
+
+```bash
+python test_stardates_unittest.py
+pytest test_stardates_pytest.py
+```
+
+## 📜 License
 
 MIT © William Martinez Bas
