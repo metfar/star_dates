@@ -77,7 +77,7 @@ def main():
 
     if args.stardate is not None:
         sd = StarDates.from_stardate(args.stardate);
-        print(sd.bitacora(f"Convert from Stardate {args.stardate}"));
+        print(sd.log(f"Convert from Stardate {args.stardate}"));
     elif args.date is not None:
         try:
             try:
@@ -88,7 +88,7 @@ def main():
                 except ValueError:
                     fecha = datetime.strptime(args.date, "%Y-%m-%d");
             sd = StarDates(fecha);
-            print(sd.bitacora(f"Convert from Terran Time {args.date}"));
+            print(sd.log(f"Convert from Terran Time {args.date}"));
         except Exception as e:
             print(f"Error interpreting time: {e}");
             sys.exit(1);
@@ -96,7 +96,7 @@ def main():
         # 🚀 Sin argumentos: usar fecha y hora actual
         now = datetime.now(); 
         sd = StarDates(now);
-        print(sd.bitacora("Current Stardate (system-based)"));
+        print(sd.log("Current Stardate (system-based)"));
 
 if __name__ == '__main__':
     main();
